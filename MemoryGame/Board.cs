@@ -8,21 +8,19 @@ namespace MemoryGame
     class Board
     {
         public List<List<Card>> Cards;
-        public int X1, Y1, X2, Y2; //chosen coordinates
-        public Dictionary<ValueTuple<int, int>, ValueTuple<int, int>> solution;
+        public Card FirstPick, LastPick; //chosen coordinates
         public int size;
+        public int Points;
 
         public Board()
         {
             Random rng = new Random();
+            Points = 0;
 
             //create table to randomise value
             List<string> deck = new List<string>()
             { "a", "b", "c", "d", "e", "f", "g", "h", "a", "b", "c", "d", "e", "f", "g", "h"};
             size = 4;
-
-            //create solution
-            solution = new Dictionary<ValueTuple<int, int>, ValueTuple<int, int>>();
 
             Cards = new List<List<Card>>();
 
@@ -37,16 +35,6 @@ namespace MemoryGame
                     deck.RemoveAt(tmp); //remove used symbol
                 }
             }
-
-            //fill solution
-            for (int y = 0; y < size; y++) //row
-            {
-                for (int x = 0; x < size; x++) //value in col
-                {
-                    
-                }
-            }
-
         }
 
         public void ShowBoard()
@@ -64,9 +52,43 @@ namespace MemoryGame
                 }
                 Console.WriteLine();
             }
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Your points: " + Points);
         }
 
-        public Card PickCard()
+        public bool WinningConditions()
+        {
+            if (Points >= (size * size)/2)
+                return false;
+            else
+                return true;
+        }
+
+        public void PickPair()
+        {
+            FirstPick = PickCard();
+            FirstPick.hasBeenDiscovered = true;
+
+            LastPick = PickCard();
+
+            if (FirstPick.Value == LastPick.Value)
+            {
+                LastPick.hasBeenDiscovered = true;
+                Points++;
+                Console.WriteLine("Brawo, trafiłeś! Kliknij jakikolwiek przycisk by grać dalej.");
+                Console.ReadKey();
+            }
+            else
+            {
+                FirstPick.hasBeenDiscovered = false;
+                Console.WriteLine("Niestety, nie trafiłeś! Kliknij jakikolwiek przycisk by grać dalej.");
+                Console.ReadKey();
+            }
+        }
+
+        private Card PickCard()
         {
             Console.Write("Podaj X karty: ");
             int X = ReadInt();
@@ -77,10 +99,16 @@ namespace MemoryGame
             Console.WriteLine();
 
             Card tmp = Cards[Y][X];
-
-            Console.WriteLine("Pierwsza karta to " + X + ":" + Y + " - " + tmp.Value);
-            Console.WriteLine();
-
+            if (tmp.hasBeenDiscovered == true)
+            {
+                Console.WriteLine("Podana karta została wcześniej odkryta");
+                tmp = PickCard();
+            }
+            else
+            {
+                Console.WriteLine("Wybrana karta to " + X + ":" + Y + " - " + tmp.Value);
+                Console.WriteLine();
+            }
             return tmp;
         }
 
